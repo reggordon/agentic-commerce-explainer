@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic Commerce Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav id="navbar" style="background:#007bff;padding:1rem 0 1rem 0;text-align:center;">
+    <a href="index.html" style="color:#fff;font-weight:bold;margin:0 1.5rem;text-decoration:none;">Demo</a>
+    <a href="transaction.html" style="color:#fff;font-weight:bold;margin:0 1.5rem;text-decoration:none;">Transaction Flow</a>
+  </nav>
+  <h1>Agentic Commerce Demo</h1>
+  <div id="container">
+    <aside id="sidebar">
+      <h2>What is Agentic Commerce?</h2>
+      <p>Agentic commerce uses autonomous agents to help users select products, negotiate prices, process payments, and fulfill orders. Each step is managed by a specialized agent, making the buying process smarter and more efficient.</p>
+      <ul>
+        <li><b>Recommender:</b> Suggests products based on your preferences.</li>
+        <li><b>Cart Manager:</b> Reviews and optimizes your cart.</li>
+        <li><b>Negotiator:</b> Finds the best price for you.</li>
+        <li><b>Payment Processor:</b> Handles secure payment.</li>
+        <li><b>Fulfillment Bot:</b> Manages shipping and delivery.</li>
+      </ul>
+      <p>Click on each step to learn more and interact with the process!</p>
+    </aside>
+    <main>
+      <div id="process-flow"></div>
+      <div id="step-details" style="display:none;"></div>
+      <div id="controls">
+        <button id="prev-step" disabled>Previous</button>
+        <button id="next-step">Next</button>
+      </div>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
