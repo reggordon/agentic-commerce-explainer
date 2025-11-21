@@ -148,42 +148,81 @@ function updateProductSelect(products) {
   });
 }
 
-// Agent selection logic based on criteria
+// NLP-based criteria parsing using compromise
+function parseCriteria(criteria) {
+  const doc = window.nlp(criteria);
+  // Extract color (using compromise's built-in colors)
+  const color = doc.match('#Color').out('text');
+  // Extract all nouns (product types)
+  const nouns = doc.nouns().out('array');
+  // Extract price
+  const priceMatch = criteria.match(/(?:under|less than|below) \$?(\d+)/i);
+  const price = priceMatch ? parseFloat(priceMatch[1]) : null;
+  console.log('NLP parse:', { color, nouns, price });
+  return { color, nouns, price };
+}
+
+// Agent selection logic using parsed attributes
 function agentSelectProduct(criteria) {
   if (!shopifyProducts.length) return '';
-  criteria = criteria.toLowerCase();
-  // Support multiple price filter phrases
-  const priceRegexes = [
-    /under \$?(\d+)/,
-    /less than \$?(\d+)/,
-    /below \$?(\d+)/
-  ];
-  let maxPrice = null;
-  for (const re of priceRegexes) {
-    const m = criteria.match(re);
-    if (m) {
-      maxPrice = parseFloat(m[1]);
-      break;
-    }
+  if (!window.nlp) {
+    console.warn('Compromise NLP not loaded');
+    return '';
+  }
+  const parsed = parseCriteria(criteria);
+  console.log('Parsed criteria:', parsed);
+  // Log all product titles for debugging
+  console.log('Product titles:', shopifyProducts.map(p => p.title));
+  // Flexible matching: allow partial/fuzzy match
+  function fuzzyIncludes(str, term) {
+    if (!str || !term) return false;
+    return str.toLowerCase().indexOf(term.toLowerCase()) !== -1;
   }
   let filtered = shopifyProducts.filter(p => {
     let match = true;
-    if (criteria.includes('hoodie')) match = match && p.title.toLowerCase().includes('hoodie');
-    if (criteria.includes('t-shirt')) match = match && p.title.toLowerCase().includes('t-shirt');
-    if (criteria.includes('sweatpants')) match = match && p.title.toLowerCase().includes('sweatpants');
-    if (maxPrice !== null) {
-      match = match && parseFloat(p.priceRange.minVariantPrice.amount) <= maxPrice;
+    // Match any noun (product type)
+    if (parsed.nouns && parsed.nouns.length) {
+      match = match && parsed.nouns.some(noun => fuzzyIncludes(p.title, noun));
+    }
+    // Match color (partial match in title or description)
+    if (parsed.color) {
+      const colorLower = parsed.color.toLowerCase();
+      match = match && (
+        fuzzyIncludes(p.title, colorLower) ||
+        (p.description ? fuzzyIncludes(p.description, colorLower) : false)
+      );
+    }
+    // Match price
+    if (parsed.price !== null) {
+      match = match && parseFloat(p.priceRange.minVariantPrice.amount) <= parsed.price;
     }
     return match;
   });
+  console.log('Filtered products:', filtered);
   // If multiple, pick cheapest
   if (filtered.length) {
     filtered.sort((a, b) => parseFloat(a.priceRange.minVariantPrice.amount) - parseFloat(b.priceRange.minVariantPrice.amount));
     return filtered[0].title;
   }
-  // Fallback: pick cheapest overall
-  shopifyProducts.sort((a, b) => parseFloat(a.priceRange.minVariantPrice.amount) - parseFloat(b.priceRange.minVariantPrice.amount));
-  return shopifyProducts[0].title;
+  // Fallback: match only type and price
+  filtered = shopifyProducts.filter(p => {
+    let match = true;
+    if (parsed.nouns && parsed.nouns.length) {
+      match = match && parsed.nouns.some(noun => fuzzyIncludes(p.title, noun));
+    }
+    if (parsed.price !== null) {
+      match = match && parseFloat(p.priceRange.minVariantPrice.amount) <= parsed.price;
+    }
+    return match;
+  });
+  if (filtered.length) {
+    filtered.sort((a, b) => parseFloat(a.priceRange.minVariantPrice.amount) - parseFloat(b.priceRange.minVariantPrice.amount));
+    return filtered[0].title;
+  }
+  // If still no match, show best alternative and explain
+  const cheapest = shopifyProducts.slice().sort((a, b) => parseFloat(a.priceRange.minVariantPrice.amount) - parseFloat(b.priceRange.minVariantPrice.amount))[0];
+  alert('No matching product found for your criteria. Showing the cheapest available: ' + cheapest.title);
+  return cheapest.title;
 }
 
 document.getElementById('criteria-update-btn').addEventListener('click', () => {
