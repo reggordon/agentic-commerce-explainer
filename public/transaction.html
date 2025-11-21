@@ -4,49 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agentic Transaction Mockup</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    #transaction-container { max-width: 700px; margin: 2rem auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 2rem; }
-    .txn-step { margin-bottom: 2rem; }
-    .txn-step.active { background: #e6f0ff; border-radius: 6px; box-shadow: 0 0 4px #007bff33; }
-    .txn-step .title { font-weight: bold; font-size: 1.2em; }
-    .txn-step .desc { margin: 0.5em 0 0.5em 0; }
-    .txn-step .action { margin-top: 1em; }
-    .txn-summary { background: #f0f8ff; border-radius: 8px; padding: 1.5rem; margin-top: 2rem; }
-    .txn-btn { padding: 0.5rem 1.5rem; font-size: 1rem; border-radius: 4px; border: none; background: #007bff; color: #fff; cursor: pointer; margin-right: 1rem; }
-    .txn-btn:disabled { background: #ccc; cursor: not-allowed; }
-  </style>
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-  <nav id="navbar" style="background:#007bff;padding:1rem 0 1rem 0;text-align:center;">
-    <a href="index.html" style="color:#fff;font-weight:bold;margin:0 1.5rem;text-decoration:none;">Demo</a>
-    <a href="transaction.html" style="color:#fff;font-weight:bold;margin:0 1.5rem;text-decoration:none;">Transaction Flow</a>
-    <a href="shopify-products.html" style="color:#fff;font-weight:bold;margin:0 1.5rem;text-decoration:none;">Shopify Products</a>
+  <nav id="navbar">
+    <a href="index.html">Demo</a>
+    <a href="transaction.html">Transaction Flow</a>
+    <a href="products.html">Products</a>
   </nav>
-  <h1 style="text-align:center;">Agentic Transaction Flow</h1>
+  <h1>Agentic Transaction Flow</h1>
   <div id="transaction-container">
-    <form id="txn-inputs" style="margin-bottom:2rem;">
-      <label><b>Product:</b>
+    <form id="txn-inputs">
+      <div>
+        <label for="input-criteria">Describe what you want:</label><br>
+        <div>
+          <input id="input-criteria" type="text" placeholder="e.g. hoodie under $50" />
+          <button id="criteria-update-btn" type="button">Update</button>
+        </div>
+        <div>Type your desired product and price, then click Update. The agent will select the best match from the Shopify feed.</div>
+      </div>
+      <div>
+        <label for="input-product">Agent-selected Product:</label><br>
         <select id="input-product">
-          <option value="Smart Speaker">Smart Speaker</option>
-          <option value="Wireless Headphones">Wireless Headphones</option>
-          <option value="Fitness Tracker">Fitness Tracker</option>
+          <option value="">Loading products...</option>
         </select>
-      </label>
-      <label style="margin-left:2rem;"><b>Payment Method:</b>
+        <div>The agent picks the product that best matches your criteria. You can manually change the selection below.</div>
+      </div>
+      <div>
+        <label for="input-payment">Payment Method:</label><br>
         <select id="input-payment">
           <option value="Visa ending 1234">Visa ending 1234</option>
           <option value="Mastercard ending 5678">Mastercard ending 5678</option>
           <option value="Apple Pay">Apple Pay</option>
         </select>
-      </label>
-      <label style="margin-left:2rem;"><b>Shipping Address:</b>
-        <input id="input-shipping" type="text" value="123 Main St." style="width:180px;" />
-      </label>
+      </div>
+      <div>
+        <label for="input-shipping">Shipping Address:</label><br>
+        <input id="input-shipping" type="text" value="123 Main St." />
+      </div>
     </form>
     <div id="txn-steps"></div>
-    <div id="txn-summary" class="txn-summary" style="display:none;"></div>
-    <div id="txn-controls" style="text-align:right;">
+    <div id="txn-summary" class="txn-summary"></div>
+    <div id="txn-controls">
       <button id="txn-prev" class="txn-btn" disabled>Previous</button>
       <button id="txn-next" class="txn-btn">Next</button>
     </div>

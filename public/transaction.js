@@ -42,6 +42,7 @@ function buildTxnSteps(inputs) {
   ];
 }
 
+let shopifyProducts = [];
 let txnSteps = buildTxnSteps(getTxnInputs());
 
 let txnCurrent = 0;
@@ -116,6 +117,97 @@ document.getElementById('txn-next').onclick = () => {
   });
 });
 
-// Initial render
+
+// Fetch Shopify products and populate product select
+fetch('/api/shopify-products')
+  .then(res => res.json())
+  .then(data => {
+    shopifyProducts = data.products || [];
+    updateProductSelect(shopifyProducts);
+    txnSteps = buildTxnSteps(getTxnInputs());
+    txnCurrent = 0;
+    renderTxnSteps();
+    updateTxnControls();
+  })
+  .catch(() => {
+    updateProductSelect([]);
+  });
+
+function updateProductSelect(products) {
+  const select = document.getElementById('input-product');
+  select.innerHTML = '';
+  if (!products || products.length === 0) {
+    select.innerHTML = '<option value="">No products found</option>';
+    return;
+  }
+  products.forEach(product => {
+    const opt = document.createElement('option');
+    opt.value = product.title;
+    opt.textContent = product.title + ' - ' + product.priceRange.minVariantPrice.amount + ' ' + product.priceRange.minVariantPrice.currencyCode;
+    select.appendChild(opt);
+  });
+}
+
+// Agent selection logic based on criteria
+function agentSelectProduct(criteria) {
+  if (!shopifyProducts.length) return '';
+  criteria = criteria.toLowerCase();
+  // Support multiple price filter phrases
+  const priceRegexes = [
+    /under \$?(\d+)/,
+    /less than \$?(\d+)/,
+    /below \$?(\d+)/
+  ];
+  let maxPrice = null;
+  for (const re of priceRegexes) {
+    const m = criteria.match(re);
+    if (m) {
+      maxPrice = parseFloat(m[1]);
+      break;
+    }
+  }
+  let filtered = shopifyProducts.filter(p => {
+    let match = true;
+    if (criteria.includes('hoodie')) match = match && p.title.toLowerCase().includes('hoodie');
+    if (criteria.includes('t-shirt')) match = match && p.title.toLowerCase().includes('t-shirt');
+    if (criteria.includes('sweatpants')) match = match && p.title.toLowerCase().includes('sweatpants');
+    if (maxPrice !== null) {
+      match = match && parseFloat(p.priceRange.minVariantPrice.amount) <= maxPrice;
+    }
+    return match;
+  });
+  // If multiple, pick cheapest
+  if (filtered.length) {
+    filtered.sort((a, b) => parseFloat(a.priceRange.minVariantPrice.amount) - parseFloat(b.priceRange.minVariantPrice.amount));
+    return filtered[0].title;
+  }
+  // Fallback: pick cheapest overall
+  shopifyProducts.sort((a, b) => parseFloat(a.priceRange.minVariantPrice.amount) - parseFloat(b.priceRange.minVariantPrice.amount));
+  return shopifyProducts[0].title;
+}
+
+document.getElementById('criteria-update-btn').addEventListener('click', () => {
+  const criteria = document.getElementById('input-criteria').value;
+  const selected = agentSelectProduct(criteria);
+  document.getElementById('input-product').value = selected;
+  document.getElementById('input-product').title = 'Agent selected this product. You can change it.';
+  txnSteps = buildTxnSteps(getTxnInputs());
+  txnCurrent = 0;
+  renderTxnSteps();
+  updateTxnControls();
+  document.getElementById('txn-summary').style.display = 'none';
+});
+
+// Allow manual override: update selected product when dropdown changes
+document.getElementById('input-product').addEventListener('change', function(e) {
+  document.getElementById('input-product').title = 'You manually selected this product.';
+  txnSteps = buildTxnSteps(getTxnInputs());
+  txnCurrent = 0;
+  renderTxnSteps();
+  updateTxnControls();
+  document.getElementById('txn-summary').style.display = 'none';
+});
+
+// Initial render (will be replaced by fetch above)
 renderTxnSteps();
 updateTxnControls();

@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agentic Commerce Demo</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-  <nav id="navbar" style="background:#007bff;padding:1rem 0 1rem 0;text-align:center;">
-    <a href="index.html" style="color:#fff;font-weight:bold;margin:0 1.5rem;text-decoration:none;">Demo</a>
-    <a href="transaction.html" style="color:#fff;font-weight:bold;margin:0 1.5rem;text-decoration:none;">Transaction Flow</a>
-    <a href="shopify-products.html" style="color:#fff;font-weight:bold;margin:0 1.5rem;text-decoration:none;">Shopify Products</a>
+  <nav id="navbar">
+    <a href="index.html">Demo</a>
+    <a href="transaction.html">Transaction Flow</a>
+    <a href="products.html">Products</a>
   </nav>
   <h1>Agentic Commerce Demo</h1>
   <div id="container">
-    <aside id="sidebar">
+    <section id="sidebar" aria-label="Agentic Commerce Info">
       <h2>What is Agentic Commerce?</h2>
       <p>Agentic commerce uses autonomous agents to help users select products, negotiate prices, process payments, and fulfill orders. Each step is managed by a specialized agent, making the buying process smarter and more efficient.</p>
       <ul>
@@ -25,15 +25,15 @@
         <li><b>Fulfillment Bot:</b> Manages shipping and delivery.</li>
       </ul>
       <p>Click on each step to learn more and interact with the process!</p>
-    </aside>
-    <main>
+    </section>
+    <section id="main-content" aria-label="Agentic Commerce Demo">
       <div id="process-flow"></div>
-      <div id="step-details" style="display:none;"></div>
+      <div id="step-details"></div>
       <div id="controls">
-        <button id="prev-step" disabled>Previous</button>
-        <button id="next-step">Next</button>
+        <button id="prev-step" class="txn-btn" disabled>Previous</button>
+        <button id="next-step" class="txn-btn">Next</button>
       </div>
-    </main>
+    </section>
   </div>
   <script src="app.js"></script>
 </body>
